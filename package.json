@@ -1,0 +1,16 @@
+{
+  "name": "scrap-teradl",
+  "version": "1.0.0",
+  "description": "Scraper menggunakan Express dan Puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.4",
+    "puppeteer": "^21.3.8"
+  }
+}
