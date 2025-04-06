@@ -1,39 +1,39 @@
-const express = require('express');
-const puppeteer = require('puppeteer');
-
+const express = require("express");
+const puppeteer = require("puppeteer-core");
 const app = express();
+const port = process.env.PORT || 3000;
 
-app.get('/scrape', async (req, res) => {
-  const inputUrl = req.query.url || 'https://terabox.com/s/1ky9XWVVJJrIUgg1B_awGkA';
-  const pwd = req.query.pwd || '';
+app.get("/", async (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).json({ error: "Missing url parameter" });
 
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
+  try {
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: "wss://chrome.browserless.io?token=S4srKbw0MVOy1T118032d477237f8e719421162872"
+    });
 
-  // spoof User-Agent
-  await page.setUserAgent(
-    'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36'
-  );
+    const page = await browser.newPage();
+    await page.goto("https://terabox.hnn.workers.dev", { waitUntil: "networkidle2" });
 
-  // buka halaman
-  await page.goto('https://terabox.hnn.workers.dev/', { waitUntil: 'networkidle2' });
+    // Masukkan URL ke input
+    await page.type("#input-url", url);
+    await page.click("#get-link-button");
 
-  // isi form dan klik tombol
-  await page.type('#input-url', inputUrl);
-  if (pwd) await page.type('#input-password', pwd);
-  await page.click('#get-link-button');
+    // Tunggu hasil
+    await page.waitForSelector(".tree-view", { timeout: 10000 });
 
-  // tunggu hasil muncul
-  await page.waitForSelector('.tree-view');
+    const result = await page.evaluate(() => {
+      return document.querySelector(".tree-view").innerText;
+    });
 
-  // ambil isi hasilnya
-  const hasil = await page.evaluate(() => {
-    return document.querySelector('.tree-view').innerText.trim();
-  });
+    await browser.close();
+    res.json({ result });
 
-  await browser.close();
-
-  res.json({ hasil });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.listen(3000, () => console.log('Listening on http://localhost:3000'));
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
