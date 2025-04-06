@@ -10,7 +10,7 @@ app.get('/', async (req, res) => {
 
   try {
     const browser = await puppeteer.connect({
-      browserWSEndpoint: 'wss://chrome.browserless.io?token=YOUR_API_KEY',
+      browserWSEndpoint: 'wss://chrome.browserless.io?token=S4srKbw0MVOy1T118032d477237f8e719421162872',
       defaultViewport: null,
     });
 
